@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div>
+<h3>Widgets</h3>
+<div class="help">{% if things['pref_show_page_help'] == 'yes' %}{{ things['page.my_widgets.help']|safe }}{% endif %}</div>
+<hr>
+
+<h4>Widgets</h4>
+<table class="pure-table pure-table-horizontal">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th align="center" colspan="2">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if widgets is none %}
+            <tr><td colspan="10"><i>No widgets have been defined. Click the 'Add new Widget' button below to add a new widget.</i></td></tr>
+        {% else %}
+            {% for widget in widgets %}
+                <tr>
+                    <td>{{ widget['widget_name'] }}</td>
+                    <td>{{ widget['description'] }}</td>
+
+                    <td>
+                        <form id="f-edit" method="GET" action="{{ url_for('widget.edit_widget') }}">
+                            <input hidden name="widget_ulid" id="widget_ulid" type="text" value="{{ widget['widget_ulid'] }}">
+                            <button id="b-edit-{{ widget['widget_ulid'] }}" class="button-xsmall pure-button">edit</button>
+                        </form>
+                    </td>
+
+                    <td>
+                        <form id="f-delete" method="POST" action="{{ url_for('widget.delete_widget') }}">
+                            <input hidden name="widget_ulid" id="widget_ulid" type="text" value="{{ widget['widget_ulid'] }}">
+                            <button id="b-delete-{{ widget['widget_ulid'] }}" class="button-xsmall pure-button">delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
+
+<br>
+<table>
+	<tr>
+		<td>
+		    <form id="f-add-widget" method="get" action="{{ url_for('widget.add_widget') }}">
+			    <button id="b-add-widget" class="pure-button pure-button-primary">add new widget</button>
+			</form>
+		</td>
+	</tr>
+</table>
+
+</div>
+
+<br><br>
+
+{% endblock %}

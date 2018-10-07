@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>MyApp</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='pure-min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='quantumrocket.css') }}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+
+<body>
+    
+    <div class="pure-g">
+    <div class="pure-u-1-24"></div>
+    <div class="pure-u-11-12">
+        
+    <p>
+		<div class="pure-menu pure-menu-horizontal">
+		<ul class="pure-menu-list">
+			<li class="pure-menu-item"><a href="{{ url_for('home.index') }}" class="pure-menu-link">MyApp</a>
+        	{% if session['authenticated'] %}
+          	<li class="pure-menu-item"><a href="{{ url_for('home.dashboard') }}" class="pure-menu-link">Dashboard</a></li>
+          	<li class="pure-menu-item"><a href="{{ url_for('widget.my_widgets') }}" class="pure-menu-link">Widgets</a></li>
+			<li class="pure-menu-item"><a href="{{ url_for('profile.my_profile') }}" class="pure-menu-link">Profile</a></li>
+			<li class="pure-menu-item"><a href="{{ url_for('home.sign_out') }}" class="pure-menu-link">Sign out</a></li>
+        	{% endif %}
+		</ul>
+		</div>
+    </p>
+
+    <div id="flash" class="flash">
+    	{% with messages = get_flashed_messages() %}
+    		{% if messages %}
+    			<ul class="flash">
+    				{% for message in messages %}
+    					<li>{{ message }}</li>
+    				{% endfor %}
+    			</ul>
+    		{% endif %}
+    	{% endwith %}
+    </div>
+
+
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">QuantumRocket &copy; 2018</div>
+    <br>
+    
+    </div>  <!-- pure-u-11-12 -->
+    <div class="pure-u-1-24"></div>
+    </div>
+
+</body>
+
+</html>

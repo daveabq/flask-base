@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div>
+<h3>Profile</h3>
+<div class="help">{% if things['pref_show_page_help'] == 'yes' %}{{ things['page.my_profile.help']|safe }}{% endif %}</div>
+<hr>
+
+<form id="f-info" class="pure-form pure-form-aligned" method="post" action={{ url_for('profile.update_profile') }}>
+  <fieldset>
+    <h4>My info</h4>
+
+    <input hidden name="user_ulid" id="user_ulid" type="text" value="{{ user.user_ulid }}">
+
+    <div class="pure-control-group">
+        <label for="full_name">Full name</label>
+        <input name="full_name" id="full_name" type="text" placeholder="full name" required value="{{ user.full_name }}">
+    </div>
+
+    <div class="pure-control-group">
+        <label for="email">Email</label>
+        <input name="email" id="email" type="text" placeholder="email address" required value="{{ user.display_email }}">
+    </div>
+
+    <div class="pure-control-group">
+        <label for="phone">Phone</label>
+        <input name="phone" id="phone" type="text" placeholder="phone number" value="{{ user.phone }}">
+    </div>
+
+    <br>
+    <h4>App preferences</h4>
+
+    <div class="pure-control-group">
+        <label for="pref_show_page_help">Show page help</label>
+	     <input type="checkbox" id="pref_show_page_help" name="pref_show_page_help" value="{{ user['pref_show_page_help'] }}"{% if user['pref_show_page_help'] == 'yes' %} checked{% endif %}></input>
+         <span class="pure-form-message-inline">Check this box to see help text at the top of each page.<br>Help text is displayed with a yellow background.</span>
+    </div>
+
+    <br/>
+    <div class="pure-control-group">
+        <label for="update"></label>
+        <button type="submit" class="pure-button pure-button-primary">update profile</button>
+    </div>
+
+  </fieldset>
+</form>
+
+</div>
+<br>
+<br>
+
+{% endblock %}

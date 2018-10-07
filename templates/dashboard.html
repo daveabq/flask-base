@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div>
+
+<h3>Dashboard</h3>
+<div class="help">{% if things['pref_show_page_help'] == 'yes' %}{{ things['page.dashboard.help']|safe }}{% endif %}</div>
+
+<br>
+<hr>
+
+<h4>Widgets <span class="pure-form-message-inline">(Details go here.)</span></h4>
+<table class="pure-table pure-table-horizontal">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if widgets is none %}
+            <tr><td colspan="7"><i>There are no widgets.</i></td></tr>
+        {% else %}
+            {% for widget in widgets %}
+                <tr>
+                    <td>{{ widget['widget_name'] }}</td>
+                    <td>{{ widget['description'] }}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
+
+<br>
+
+</div>
+
+<br><br>
+{% endblock %}

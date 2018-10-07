@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Add a new widget</h3>
+<hr>
+
+<form id="f-add" class="pure-form pure-form-aligned" method="post" action={{ url_for('widget.add_widget_complete') }}>
+  <fieldset>
+
+    <div class="pure-control-group">
+        <label for="widget_name">Widget name</label>
+        <input name="widget_name" id="widget_name" type="text" placeholder="widget name" required value="{% if widget['widget_name'] is not none %}{{ widget['widget_name'] }}{% endif %}">
+    </div>
+
+    <div class="pure-control-group">
+        <label for="description">Description</label>
+        <input name="description" id="description" type="text" placeholder="description" required value="{% if widget['description'] is not none %}{{ widget['description'] }}{% endif %}">
+    </div>
+
+    <br/>
+    <div class="pure-control-group">
+        <button type="submit" class="pure-button pure-button-primary">add</button>
+    </div>
+
+  </fieldset>
+</form>
+
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div>
+    <h3>Flask app</h3>
+	<div class="help">{% if things['pref_show_page_help'] == 'yes' %}{{ things['page.index.help']|safe }}{% endif %}</div>
+    <hr>
+
+    {% if not session['authenticated'] %}
+      <p>Already a user? Please sign in</p>
+
+      <form class="pure-form pure-form-aligned" method="post" action={{ url_for('home.sign_in') }}>
+          <fieldset>
+            <div class="pure-control-group">
+  	            <label for="user_email">Email address</label>
+  	            <input name="user_email" id="user_email" type="email" placeholder="me@example.com" required value="a@a.a">
+  	        </div>
+
+            <div class="pure-control-group">
+  	            <label for="password">Password</label>
+  	            <input name="password" id="password" type="password" placeholder="your password" required value="a">
+  	        </div>
+
+              <button type="submit" class="pure-button pure-button-primary">Sign in</button>
+          </fieldset>
+      </form>
+
+	  <br>
+      <p>Sign up here...</p>
+
+      <form class="pure-form pure-form-aligned" method="post" action={{ url_for('home.sign_up') }}>
+          <fieldset>
+            <div class="pure-control-group">
+  	            <label for="user_email">Email address</label>
+  	            <input name="user_email" id="user_email" type="email" placeholder="me@example.com" required value="a@a.a">
+  	        </div>
+
+            <div class="pure-control-group">
+  	            <label for="password">Password</label>
+  	            <input name="password" id="password" type="password" placeholder="your password" required value="a">
+  	        </div>
+
+              <button type="submit" class="pure-button pure-button-primary">Sign up</button>
+          </fieldset>
+      </form>
+	{% else %}
+      <br><br>
+	  Good to see you again{% if user %} {{ user['full_name'] }}{% endif %}!
+      <br><br>
+    {% endif %}
+
+</div>
+
+<br><br>
+
+{% endblock %}

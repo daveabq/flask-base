@@ -65,39 +65,3 @@ CREATE TABLE IF NOT EXISTS widgets (
     created                TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated                TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
-
-
---
--- signins
---
-
-DROP TABLE IF EXISTS signins;
-CREATE TABLE IF NOT EXISTS signins (
-    signin_ulid TEXT NOT NULL PRIMARY KEY,
-    user_email  TEXT NOT NULL,
-    status      TEXT NOT NULL DEFAULT 'pending',
-    created     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    updated     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-
-    CONSTRAINT uk_signins_user_email UNIQUE (user_email)
-);
-
-
---
--- visits
---
-DROP TABLE IF EXISTS visits;
-CREATE TABLE IF NOT EXISTS visits (
-    visit_ulid  TEXT NOT NULL PRIMARY KEY,
-    user_ulid   TEXT NOT NULL,
-    user_email  TEXT NOT NULL,
-    controller  TEXT NOT NULL,
-    function    TEXT NOT NULL,
-    description TEXT,
-    host        TEXT NOT NULL,
-    origin      TEXT,
-    referer     TEXT,
-    language    TEXT,
-    user_agent  TEXT,
-    created     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
-);

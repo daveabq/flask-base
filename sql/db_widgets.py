@@ -40,33 +40,8 @@ def get_by_user_ulid(user_ulid):
     Get widgets by user ulid.
     """
 
-    try:
-
-        cur = con.cursor()
-
-        cur.execute(
-            "SELECT widget_ulid, widget_name, description FROM widgets WHERE user_ulid = %s ORDER BY widget_name",
-            (user_ulid,))
-
-        widgets = cur.fetchall()
-        con.commit()
-
-        if not widgets:
-            return None
-
-        widget_list = []
-
-        for widget in widgets:
-            widget_dict = db.create_dict(widget, ['widget_ulid', 'widget_name', 'description'])
-            widget_list.append(widget_dict)
-
-        return widget_list
-
-    except Exception as e:
-
-        log.error('db_widgets.py::get_by_user_ulid', str(e))
-        con.commit()
-        return None
+    return db.select('widgets', {'user_ulid':user_ulid}, ['widget_name'],
+                     ['widget_ulid', 'widget_name', 'description'])
 
 
 def get_by_ulid(widget_ulid):
@@ -74,29 +49,32 @@ def get_by_ulid(widget_ulid):
     Get a widget by its ulid.
     """
 
-    try:
+    return db.select_single('widgets', {'widget_ulid':widget_ulid}, None,
+                     ['widget_ulid', 'widget_name', 'user_ulid', 'user_email', 'description'])
 
-        cur = con.cursor()
-
-        cur.execute(
-            "SELECT widget_ulid, widget_name, user_ulid, user_email, description FROM widgets WHERE widget_ulid = %s",
-            (widget_ulid,))
-
-        widget = cur.fetchone()
-        con.commit()
-
-        if not widget:
-            return None
-
-        widget_dict = db.create_dict(widget, ['widget_ulid', 'widget_name', 'user_ulid', 'user_email', 'description'])
-
-        return widget_dict
-
-    except Exception as e:
-
-        log.error('db_widgets.py::get_by_user_ulid', str(e))
-        con.commit()
-        return None
+    # try:
+    #
+    #     cur = con.cursor()
+    #
+    #     cur.execute(
+    #         "SELECT widget_ulid, widget_name, user_ulid, user_email, description FROM widgets WHERE widget_ulid = %s",
+    #         (widget_ulid,))
+    #
+    #     widget = cur.fetchone()
+    #     con.commit()
+    #
+    #     if not widget:
+    #         return None
+    #
+    #     widget_dict = db.create_dict(widget, ['widget_ulid', 'widget_name', 'user_ulid', 'user_email', 'description'])
+    #
+    #     return widget_dict
+    #
+    # except Exception as e:
+    #
+    #     log.error('db_widgets.py::get_by_user_ulid', str(e))
+    #     con.commit()
+    #     return None
 
 
 def get_widget_by_user_ulid_and_widget_name(user_ulid, widget_name):

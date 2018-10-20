@@ -6,6 +6,7 @@ license that can be found in the LICENSE file.
 
 import lib.kvpairs as kvpairs
 import lib.log as log
+import sql.db as db
 import sql.db_things as db_things
 import sql.db_users as db_users
 
@@ -110,12 +111,12 @@ def update_profile():
 
             return render_template('my_profile.html', user=user_from_form)
 
-    email = user_from_form['email']
-    full_name = user_from_form['full_name']
-    phone = user_from_form['phone']
-    pref_show_page_help = user_from_form['pref_show_page_help']
+    user['email'] = user_from_form['email']
+    user['full_name'] = user_from_form['full_name']
+    user['phone'] = user_from_form['phone']
+    user['pref_show_page_help'] = user_from_form['pref_show_page_help']
 
-    db_users.update(user_ulid, email, full_name, phone, pref_show_page_help)
+    db.update('users', {'user_ulid': user_ulid}, user)
 
     flash('Your profile changes were successful.')
     return redirect(url_for('profile.my_profile'))

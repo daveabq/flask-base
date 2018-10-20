@@ -52,105 +52,14 @@ def get_by_ulid(widget_ulid):
     return db.select_single('widgets', {'widget_ulid':widget_ulid}, None,
                      ['widget_ulid', 'widget_name', 'user_ulid', 'user_email', 'description'])
 
-    # try:
-    #
-    #     cur = con.cursor()
-    #
-    #     cur.execute(
-    #         "SELECT widget_ulid, widget_name, user_ulid, user_email, description FROM widgets WHERE widget_ulid = %s",
-    #         (widget_ulid,))
-    #
-    #     widget = cur.fetchone()
-    #     con.commit()
-    #
-    #     if not widget:
-    #         return None
-    #
-    #     widget_dict = db.create_dict(widget, ['widget_ulid', 'widget_name', 'user_ulid', 'user_email', 'description'])
-    #
-    #     return widget_dict
-    #
-    # except Exception as e:
-    #
-    #     log.error('db_widgets.py::get_by_user_ulid', str(e))
-    #     con.commit()
-    #     return None
 
-
-def get_widget_by_user_ulid_and_widget_name(user_ulid, widget_name):
+def get_by_user_ulid_and_widget_name(user_ulid, widget_name):
     """
     Get a widget by its user ulid and widget name.
     """
 
-    try:
-
-        cur = con.cursor()
-
-        cur.execute(
-            "SELECT widget_ulid, widget_name, user_ulid, user_email, description FROM widgets "
-            + "WHERE user_ulid = %s AND widget_name = %s",
-            (user_ulid, widget_name,))
-
-        widget = cur.fetchone()
-        con.commit()
-
-        if not widget:
-            return None
-
-        widget_dict = db.create_dict(widget, ['widget_ulid', 'widget_name', 'user_ulid', 'user_email', 'description'])
-
-        return widget_dict
-
-    except Exception as e:
-
-        log.error('db_widgets.py::get_widget_by_user_ulid_and_widget_name', str(e))
-        con.commit()
-        return None
-
-
-def insert(widget_name, user_ulid, user_email, description):
-    """
-    Insert a new widget.
-    """
-
-    try:
-
-        new_ulid = ulid.new().str
-        cur = con.cursor()
-
-        cur.execute("INSERT INTO widgets (widget_ulid, widget_name, user_ulid, user_email, description) "
-                    + "VALUES (%s, %s, %s, %s, %s)", (new_ulid, widget_name, user_ulid, user_email, description))
-
-        con.commit()
-        return new_ulid
-
-    except Exception as e:
-
-        log.error('db_widgets.py::insert', str(e))
-        con.commit()
-        return None
-
-
-def update(widget_ulid, widget_name, user_ulid, user_email, description):
-    """
-    Update an existing widget.
-    """
-
-    try:
-
-        cur = con.cursor()
-
-        cur.execute("UPDATE widgets SET widget_name = %s, user_ulid = %s, user_email = %s, description = %s "
-                    + "WHERE widget_ulid = %s", (widget_name, user_ulid, user_email, description, widget_ulid))
-
-        con.commit()
-        return
-
-    except Exception as e:
-
-        log.error('db_widgets.py::update', str(e))
-        con.commit()
-        return
+    return db.select_single('widgets', {'user_ulid': user_ulid, 'widget_name': widget_name}, None,
+                            ['widget_ulid', 'widget_name', 'user_ulid', 'user_email', 'description'])
 
 
 def delete_widget(widget_ulid):

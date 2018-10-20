@@ -5,6 +5,7 @@ license that can be found in the LICENSE file.
 """
 
 import lib.log as log
+import sql.db as db
 import sql.db_users as db_users
 import sql.db_widgets as db_widgets
 import sql.db_things as db_things
@@ -110,7 +111,7 @@ def add_widget_complete():
 
     # check to see if the widget name already exists
     existing_widget: Optional[Dict[Any, Any]] = \
-        db_widgets.get_widget_by_user_ulid_and_widget_name(user_ulid, widget_name)
+        db_widgets.get_by_user_ulid_and_widget_name(user_ulid, widget_name)
 
     if existing_widget is not None:
 
@@ -122,7 +123,13 @@ def add_widget_complete():
 
     description = request.form['description']
 
-    widget_ulid = db_widgets.insert(widget_name, user_ulid, user_email, description)
+    widget = {}
+    widget['widget_name'] = request.form['widget_name']
+    widget['user_ulid'] = user_ulid
+    widget['user_email'] = user_email
+    widget['description'] = description
+
+    widget_ulid = db.insert('widgets', widget)
 
     flash("Widget '" + widget_name + "' added.")
     log.debug('widget.py::add_widget_complete', 'Added new widget, widget_ulid [' + widget_ulid + '].')
@@ -222,7 +229,7 @@ def edit_widget_complete():
         return redirect(url_for('home.index'))
 
     # check to see if the widget name already exists
-    existing_widget = db_widgets.get_widget_by_user_ulid_and_widget_name(user_ulid, widget_name)
+    existing_widget = db_widgets.get_by_user_ulid_and_widget_name(user_ulid, widget_name)
 
     if existing_widget is not None:
 
@@ -235,7 +242,14 @@ def edit_widget_complete():
             keep_widget = get_widget_from_request(request)
             return render_template('edit_widget.html', widget=keep_widget)
 
-    db_widgets.update(widget_ulid, widget_name, user_ulid, user_email, description)
+    widget = {}
+    widget['widget_name'] = widget_name
+    widget['user_ulid'] = user_ulid
+    widget['user_email'] = user_email
+    widget['description'] = description
+
+    db.update('widgets', {'widget_ulid': widget_ulid}, widget)
+
     flash("Widget '" + widget_name + "' edit successful.")
 
     log.debug('widget.py::edit_widget_complete',

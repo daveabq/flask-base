@@ -53,29 +53,8 @@ def get_by_email(email):
     Get a 'users' record by the user's email address.
     """
 
-    try:
-
-        cur = con.cursor()
-
-        cur.execute("SELECT user_ulid, email, display_email, full_name, phone, status, pref_show_page_help "
-                    + "FROM users WHERE email = %s", (email.lower(),))
-
-        user = cur.fetchone()
-        con.commit()
-
-        if not user:
-            return None
-
-        user_dict = db.create_dict(user, ['user_ulid', 'email', 'display_email', 'full_name', 'phone', 'status',
-                                          'pref_show_page_help'])
-
-        return user_dict
-
-    except Exception as e:
-
-        log.error('db_users.py::get_by_email', str(e))
-        con.commit()
-        return None
+    return db.select_single('users', {'email': email.lower()}, None, ['user_ulid', 'email', 'display_email',
+        'full_name', 'phone', 'status', 'pref_show_page_help'])
 
 
 def insert_user(email, password):
@@ -106,25 +85,3 @@ def insert_user(email, password):
         log.error('db_users.py::insert_user', str(e))
         con.commit()
         return None
-
-
-def update(user_ulid, email, full_name, phone, pref_show_page_help):
-    """
-    Update an existing user.
-    """
-
-    try:
-
-        cur = con.cursor()
-
-        cur.execute("UPDATE users SET email = %s, full_name = %s, phone = %s, pref_show_page_help = %s "
-                    + "WHERE user_ulid = %s", (email, full_name, phone, pref_show_page_help, user_ulid))
-
-        con.commit()
-        return
-
-    except Exception as e:
-
-        log.error('db_users.py::update', str(e))
-        con.commit()
-        return

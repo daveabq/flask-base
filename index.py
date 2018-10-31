@@ -28,13 +28,11 @@ app.secret_key = '1324fluffy5678'
 app.config['SESSION_TYPE'] = 'filesystem'
 
 
-"""
-Verify user has authenticated, except for non-secure pages.
-"""
 @app.before_request
 def before_request():
-
-    log.debug('index.py::before_request', 'start')
+    """
+    Verify user has authenticated, except for non-secure pages.
+    """
 
     if 'authenticated' not in session \
             and request.endpoint != 'home.index' \
@@ -45,7 +43,6 @@ def before_request():
 
         flash('Please sign in.')
 
-        log.debug('index.py::before_request', 'Redirecting to home.py::index.')
         return redirect(url_for('home.index'))
 
 

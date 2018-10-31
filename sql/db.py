@@ -223,7 +223,7 @@ def select_single(table, where, order_by, cols):
     Call the select(...) function and return the first list element if the list is not empty, otherwise return None.
     """
 
-    rows = select(table, where, order_by, cols)
+    rows = select(table, where, order_by, cols, False)
 
     if rows:
         return rows[0]
@@ -231,20 +231,59 @@ def select_single(table, where, order_by, cols):
         return None
 
 
-def select(table, where, order_by, cols):
+def select_single_like(table, where, order_by, cols):
+    """
+    Call the select(...) function and return the first list element if the list is not empty, otherwise return None.
+    """
+
+    rows = select(table, where, order_by, cols, True)
+
+    if rows:
+        return rows[0]
+    else:
+        return None
+
+
+def select_all(table, where, order_by, cols):
+    """
+    Call the select(...) function and return all list elements if the list is not empty, otherwise return None.
+    """
+
+    rows = select(table, where, order_by, cols, False)
+
+    if rows:
+        return rows
+    else:
+        return None
+
+
+def select_all_like(table, where, order_by, cols):
+    """
+    Call the select(...) function and return all list elements if the list is not empty, otherwise return None.
+    """
+
+    rows = select(table, where, order_by, cols, True)
+
+    if rows:
+        return rows
+    else:
+        return None
+
+
+def select(table, where, order_by, cols, like):
     """
     Execute a SELECT statement, based on the supplied parameters.
 
     Given the call:
 
-        select('widgets', {'user_ulid':'01CS2P9P684BAA6NCHDDN4D704'}, ['widget_name'],
+        select_all('widgets', {'user_ulid':'01CS2P9P684BAA6NCHDDN4D704'}, ['widget_name'],
             ['widget_ulid', 'widget_name', 'description'])
 
         the following SQL will be created:
 
         SELECT widget_ulid, widget_name, description FROM widgets WHERE user_ulid = %s ORDER BY widget_name
 
-    For this call, with more elements in both the 'where' and 'order_by' params:
+    For this call, we have more elements in both the 'where' and 'order_by' params:
 
         select('widgets', {'user_ulid':'01CS2P9P684BAA6NCHDDN4D704, 'user_email':'a@a.a'},
             ['widget_name', 'description'], ['widget_ulid', 'widget_name', 'description'])
@@ -269,6 +308,7 @@ def select(table, where, order_by, cols):
     :param where: map of WHERE clause criteria
     :param order_by: list of ORDER BY criteria
     :param cols: select these columns
+    :param like: use LIKE in the WHERE clause
     :return:
     """
 
@@ -297,7 +337,10 @@ def select(table, where, order_by, cols):
                 if where_values:
                     s += " AND "
 
-                s += where_col + ' = %s'
+                if like:
+                    s += where_col + ' LIKE %s'
+                else:
+                    s += where_col + ' = %s'
 
                 where_values.append(where_value)
 

@@ -40,8 +40,8 @@ def get_by_user_ulid(user_ulid):
     Get widgets by user ulid.
     """
 
-    return db.select('widgets', {'user_ulid':user_ulid}, ['widget_name'],
-                     ['widget_ulid', 'widget_name', 'description'])
+    return db.select_all('widgets', {'user_ulid':user_ulid}, ['widget_name'],
+                         ['widget_ulid', 'widget_name', 'description'])
 
 
 def get_by_ulid(widget_ulid):
@@ -50,7 +50,7 @@ def get_by_ulid(widget_ulid):
     """
 
     return db.select_single('widgets', {'widget_ulid':widget_ulid}, None,
-                     ['widget_ulid', 'widget_name', 'user_ulid', 'user_email', 'description'])
+                            ['widget_ulid', 'widget_name', 'user_ulid', 'user_email', 'description'])
 
 
 def get_by_user_ulid_and_widget_name(user_ulid, widget_name):

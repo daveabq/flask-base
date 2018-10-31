@@ -119,4 +119,10 @@ def update_profile():
     db.update('users', {'user_ulid': user_ulid}, user)
 
     flash('Your profile changes were successful.')
+
+    # if the user has changed their email address, update it in their session
+    if user_from_form['email'] != user_email:
+
+        session['user_email'] = user_from_form['email']
+
     return redirect(url_for('profile.my_profile'))

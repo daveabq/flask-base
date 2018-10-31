@@ -25,19 +25,17 @@ def auth_by_email_and_password(email, password):
 
     try:
 
-        cur = con.cursor()
-        cur.execute("SELECT user_ulid, password, full_name FROM users WHERE email = %s", (email.lower(),))
-        user = cur.fetchone()
-        con.commit()
+        user = db.select_single('users', {'email': email.lower()}, None,
+                                ['user_ulid', 'email', 'password', 'full_name'])
 
         if not user:
             return None
 
-        user_dict = db.create_dict(user, ['user_ulid', 'password', 'full_name'])
-        auth = bcrypt.checkpw(bytes(password, 'utf-8'), bytes(user_dict['password'], 'utf-8'))
+        auth = bcrypt.checkpw(bytes(password, 'utf-8'), bytes(user['password'], 'utf-8'))
 
         if auth:
-            return user_dict
+            user.pop('password', None)
+            return user
         else:
             return None
 
@@ -60,8 +58,6 @@ def get_by_email(email):
 def insert_user(email, password):
     """
     Insert a new 'users' record.
-    :type email: str
-    :type password: str
     """
 
     try:
@@ -69,13 +65,8 @@ def insert_user(email, password):
         new_ulid = ulid.new().str
         hashed_password = bcrypt.hashpw(bytes(password, 'utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-        cur = con.cursor()
-        sql.extras.register_uuid()
-
-        cur.execute("INSERT INTO users (user_ulid, email, display_email, password) VALUES (%s, %s, %s, %s)",
-                    (new_ulid, email.lower(), email, hashed_password))
-
-        con.commit()
+        db.insert('users', {'user_ulid': new_ulid, 'email': email.lower(), 'display_email': email,
+                            'password': hashed_password})
 
         user_dict = {'user_ulid': new_ulid, 'email': email}
         return user_dict

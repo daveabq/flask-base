@@ -67,7 +67,7 @@ def create_message(caller, level, message):
     """
 
     timestamp = datetime.datetime.now()
-    out_message = str(timestamp) + ', ' + pad_left(level.upper() + ', ', ' ', 8) + caller + ',' + message
+    out_message = str(timestamp) + ', ' + pad_left(level.upper() + ', ', ' ', 8) + caller + ', ' + message
 
     return out_message
 

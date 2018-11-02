@@ -26,7 +26,7 @@ def auth_by_email_and_password(email, password):
     try:
 
         user = db.select_single('users', {'email': email.lower()}, None,
-                                ['user_ulid', 'email', 'password', 'full_name'])
+                                ['user_id', 'email', 'password', 'full_name'])
 
         if not user:
             return None
@@ -46,13 +46,14 @@ def auth_by_email_and_password(email, password):
         return None
 
 
-def get_by_email(email):
+def find_by_email(email):
     """
     Get a 'users' record by the user's email address.
     """
 
-    return db.select_single('users', {'email': email.lower()}, None, ['user_ulid', 'email', 'display_email',
-        'full_name', 'phone', 'status', 'pref_show_page_help'])
+    return db.select_single('users', {'email': email.lower()}, None,
+                            ['user_id', 'email', 'display_email', 'full_name', 'phone',
+                             'status', 'pref_show_page_help'])
 
 
 def insert_user(email, password):
@@ -62,13 +63,12 @@ def insert_user(email, password):
 
     try:
 
-        new_ulid = ulid.new().str
+        new_id = ulid.new().str
         hashed_password = bcrypt.hashpw(bytes(password, 'utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-        db.insert('users', {'user_ulid': new_ulid, 'email': email.lower(), 'display_email': email,
-                            'password': hashed_password})
+        db.insert('users', {'email': email.lower(), 'display_email': email, 'password': hashed_password})
 
-        user_dict = {'user_ulid': new_ulid, 'email': email}
+        user_dict = {'user_id': new_id, 'email': email}
         return user_dict
 
     except Exception as e:

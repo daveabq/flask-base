@@ -30,14 +30,14 @@ def my_widgets():
 
         user_email = session.get('user_email')
 
-        user = db_users.get_by_email(user_email)
+        user = db_users.find_by_email(user_email)
 
         if user is None:
             log.error('widget.py::my_widgets', 'ERROR: invalid state - no user record for user_email: ' + user_email)
             flash('Please sign in. If you are not already a QuantumRocket user, please sign up.')
             return redirect(url_for('home.index'))
 
-        widgets = db_widgets.get_by_user_ulid(user['user_ulid'])
+        widgets = db_widgets.find_by_user_id(user['user_id'])
 
     except Exception as e:
 
@@ -63,10 +63,10 @@ def get_widget_from_request(req):
         widget_from_request: Dict[str, Optional[Any]] = {}
 
         try:
-            widget_from_request['widget_ulid'] = req.form['widget_ulid']
+            widget_from_request['widget_id'] = req.form['widget_id']
         except Exception:
-            # if we are adding a new widget, there will not be a widget_ulid
-            widget_from_request['widget_ulid'] = None
+            # if we are adding a new widget, there will not be a widget_id
+            widget_from_request['widget_id'] = None
 
         widget_from_request['widget_name'] = req.form['widget_name']
         widget_from_request['description'] = req.form['description']
@@ -94,10 +94,10 @@ def add_widget_complete():
     Complete the process of adding a new widget.
     """
 
-    user_ulid = session.get('user_ulid')
+    user_id = session.get('user_id')
     user_email = session.get('user_email')
 
-    user = db_users.get_by_email(user_email)
+    user = db_users.find_by_email(user_email)
 
     if user is None:
 
@@ -111,7 +111,7 @@ def add_widget_complete():
 
     # check to see if the widget name already exists
     existing_widget: Optional[Dict[Any, Any]] = \
-        db_widgets.get_by_user_ulid_and_widget_name(user_ulid, widget_name)
+        db_widgets.find_by_user_id_and_widget_name(user_id, widget_name)
 
     if existing_widget is not None:
 
@@ -125,14 +125,14 @@ def add_widget_complete():
 
     widget = {}
     widget['widget_name'] = request.form['widget_name']
-    widget['user_ulid'] = user_ulid
+    widget['user_id'] = user_id
     widget['user_email'] = user_email
     widget['description'] = description
 
-    widget_ulid = db.insert('widgets', widget)
+    widget_id = db.insert('widgets', widget)
 
     flash("Widget '" + widget_name + "' added.")
-    log.debug('widget.py::add_widget_complete', 'Added new widget, widget_ulid [' + widget_ulid + '].')
+    log.debug('widget.py::add_widget_complete', 'Added new widget, widget_id [' + widget_id + '].')
     
     return redirect(url_for('widget.my_widgets'))
 
@@ -146,17 +146,17 @@ def delete_widget():
     from the 'widgets' table on the my_widgets.html page.
     """
 
-    widget_ulid = request.form['widget_ulid']
-    log.debug('widget.py::delete_widget', 'widget_ulid [' + widget_ulid + ']')
+    widget_id = request.form['widget_id']
+    log.debug('widget.py::delete_widget', 'widget_id [' + widget_id + ']')
 
-    widget_to_delete: Optional[Dict[Any, Any]] = db_widgets.get_by_ulid(widget_ulid)
+    widget_to_delete: Optional[Dict[Any, Any]] = db_widgets.find_by_id(widget_id)
     widget_name = widget_to_delete['widget_name']
 
     # now we can safely delete the widget
-    db_widgets.delete_widget(widget_ulid)
+    db_widgets.delete_widget(widget_id)
 
     flash("Widget name '" + widget_name + "' has been deleted.")
-    log.debug('widget.py::delete_widget', 'deleted widget, widget_ulid [' + widget_ulid + ']')
+    log.debug('widget.py::delete_widget', 'deleted widget, widget_id [' + widget_id + ']')
 
     return redirect(url_for('widget.my_widgets'))
 
@@ -170,34 +170,34 @@ def edit_widget():
     from the 'widgets' table on the my_widgets.html page.
     """
 
-    user_ulid = session.get('user_ulid')
+    user_id = session.get('user_id')
     user_email = session.get('user_email')
 
-    user = db_users.get_by_email(user_email)
+    user = db_users.find_by_email(user_email)
 
     if user is None:
         log.error('widget.py::edit_widget', 'ERROR: invalid state - no user record for user_email: ' + user_email)
         flash('Please sign in. If you are not already a user, please sign up.')
         return redirect(url_for('home.index'))
 
-    widget_ulid = request.args.get('widget_ulid')
+    widget_id = request.args.get('widget_id')
 
-    if widget_ulid is None:
+    if widget_id is None:
 
         log.error('widget.py::edit_widget',
-                  'ERROR: invalid state - no widget_ulid in request. user_ulid [' + user_ulid + ']')
+                  'ERROR: invalid state - no widget_id in request. user_id [' + user_id + ']')
 
         flash('Oops! Something went sideways. We have been notified of the problem. Carry on.')
         return redirect(url_for('widget.my_widgets'))
 
-    log.debug('widget.py::edit_widget', 'widget_ulid [' + widget_ulid + ']')
+    log.debug('widget.py::edit_widget', 'widget_id [' + widget_id + ']')
 
-    widget_to_edit: Optional[Dict[Any, Any]] = db_widgets.get_by_ulid(widget_ulid)
+    widget_to_edit: Optional[Dict[Any, Any]] = db_widgets.find_by_id(widget_id)
 
     if widget_to_edit is None:
 
         log.error('widget.py::edit_widget',
-                  'ERROR: invalid state - no widget record for widget_ulid [' + widget_ulid + ']')
+                  'ERROR: invalid state - no widget record for widget_id [' + widget_id + ']')
 
         flash('Oops! Something went sideways. We have been notified of the problem. Carry on.')
         return redirect(url_for('widget.my_widgets'))
@@ -211,14 +211,14 @@ def edit_widget_complete():
     Complete a widget edit.
     """
 
-    widget_ulid = request.form['widget_ulid']
+    widget_id = request.form['widget_id']
     widget_name = request.form['widget_name']
     description = request.form['description']
 
-    user_ulid = session.get('user_ulid')
+    user_id = session.get('user_id')
     user_email = session.get('user_email')
 
-    user = db_users.get_by_email(user_email)
+    user = db_users.find_by_email(user_email)
 
     if user is None:
 
@@ -229,12 +229,12 @@ def edit_widget_complete():
         return redirect(url_for('home.index'))
 
     # check to see if the widget name already exists
-    existing_widget = db_widgets.get_by_user_ulid_and_widget_name(user_ulid, widget_name)
+    existing_widget = db_widgets.find_by_user_id_and_widget_name(user_id, widget_name)
 
     if existing_widget is not None:
 
         # are we looking at the same widget (database and form)?
-        if existing_widget['widget_ulid'] != widget_ulid:
+        if existing_widget['widget_id'] != widget_id:
 
             flash("You already have a Widget with the name '" + widget_name
                   + "'. Please try a different name as Widget names are unique.")
@@ -244,16 +244,16 @@ def edit_widget_complete():
 
     widget = {}
     widget['widget_name'] = widget_name
-    widget['user_ulid'] = user_ulid
+    widget['user_id'] = user_id
     widget['user_email'] = user_email
     widget['description'] = description
 
-    db.update('widgets', {'widget_ulid': widget_ulid}, widget)
+    db.update('widgets', {'widget_id': widget_id}, widget)
 
     flash("Widget '" + widget_name + "' edit successful.")
 
     log.debug('widget.py::edit_widget_complete',
-              'Successful edit of existing widget, widget_ulid [' + widget_ulid + '].')
+              'Successful edit of existing widget, widget_id [' + widget_id + '].')
 
     return redirect(url_for('widget.my_widgets'))
 
@@ -265,5 +265,5 @@ def replace_widget(widgets, new_widget):
 
     for pos, current_widget in enumerate(widgets):
 
-        if current_widget['widget_ulid'] == new_widget['widget_ulid']:
+        if current_widget['widget_id'] == new_widget['widget_id']:
             widgets[pos] = new_widget

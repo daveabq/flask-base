@@ -25,15 +25,15 @@
 
                     <td>
                         <form id="f-edit" method="GET" action="{{ url_for('widget.edit_widget') }}">
-                            <input hidden name="widget_ulid" id="widget_ulid" type="text" value="{{ widget['widget_ulid'] }}">
-                            <button id="b-edit-{{ widget['widget_ulid'] }}" class="button-xsmall pure-button">edit</button>
+                            <input hidden name="widget_id" id="widget_id" type="text" value="{{ widget['widget_id'] }}">
+                            <button id="b-edit-{{ widget['widget_id'] }}" class="button-xsmall pure-button">edit</button>
                         </form>
                     </td>
 
                     <td>
                         <form id="f-delete" method="POST" action="{{ url_for('widget.delete_widget') }}">
-                            <input hidden name="widget_ulid" id="widget_ulid" type="text" value="{{ widget['widget_ulid'] }}">
-                            <button id="b-delete-{{ widget['widget_ulid'] }}" class="button-xsmall pure-button">delete</button>
+                            <input hidden name="widget_id" id="widget_id" type="text" value="{{ widget['widget_id'] }}">
+                            <button id="b-delete-{{ widget['widget_id'] }}" class="button-xsmall pure-button">delete</button>
                         </form>
                     </td>
                 </tr>

@@ -39,7 +39,7 @@ def index():
 
         else:
 
-            user = db_users.get_by_email(user_email)
+            user = db_users.find_by_email(user_email)
 
             if user is None:
                 things['pref_show_page_help'] = 'yes'
@@ -74,7 +74,7 @@ def sign_in():
 
     session['authenticated'] = True
     session['user_email'] = user_email
-    session['user_ulid'] = user['user_ulid']
+    session['user_id'] = user['user_id']
 
     flash('Welcome back ' + user['full_name'] + '!')
 
@@ -90,7 +90,7 @@ def sign_up():
     user_email = request.form['user_email']
     password = request.form['password']
     
-    user = db_users.get_by_email(user_email)
+    user = db_users.find_by_email(user_email)
     if user is not None:
         flash('A user with that email address already exists. Hmmm. Not you? Try another email address.')
         return redirect(url_for('home.index'))
@@ -103,7 +103,7 @@ def sign_up():
 
     session['authenticated'] = True
     session['user_email'] = user_email
-    session['user_ulid'] = user['user_ulid']
+    session['user_id'] = user['user_id']
 
     flash('Welcome to QuantumRocket!')
 
@@ -128,14 +128,14 @@ def dashboard():
     """
 
     user_email = session.get('user_email')
-    user = db_users.get_by_email(user_email)
+    user = db_users.find_by_email(user_email)
     
     if user is None:
         log.error('home.py::dashboard', 'No user record for email [' + user_email + '].')
         flash('Oops! Looks like something went sideways. We have been notified of the problem. Carry on.')
         return redirect(url_for('home.index'))
         
-    widgets = db_widgets.get_by_user_ulid(user['user_ulid'])
+    widgets = db_widgets.find_by_user_id(user['user_id'])
     things: Optional[Dict[Any, Any]] = db_things.get('page.dashboard.help')
 
     if user['pref_show_page_help'] == 'yes':

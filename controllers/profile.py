@@ -27,7 +27,7 @@ def my_profile():
     try:
 
         user_email = session.get('user_email')
-        user = db_users.get_by_email(user_email)
+        user = db_users.find_by_email(user_email)
 
         things = db_things.get('page.my_profile.help')
 
@@ -52,7 +52,7 @@ def get_user_from_request(req):
 
         user: Dict[str, Union[str, Any]] = {}
 
-        user['user_ulid'] = req.form['user_ulid']
+        user['user_id'] = req.form['user_id']
         user['full_name'] = req.form['full_name']
         user['email'] = req.form['email']
         user['phone'] = req.form['phone']
@@ -84,10 +84,10 @@ def update_profile():
     Update a user's profile.
     """
 
-    user_ulid = session.get('user_ulid')
+    user_id = session.get('user_id')
     user_email = session.get('user_email')
 
-    user = db_users.get_by_email(user_email)
+    user = db_users.find_by_email(user_email)
 
     if user is None:
         log.error('profile.py::update_profile', 'ERROR: invalid state - no user record for user_email: ' + user_email)
@@ -101,7 +101,7 @@ def update_profile():
     if user_from_form['email'] != user_email:
 
         # check to see if the email address already exists
-        check_email_user = db_users.get_by_email(user_from_form['email'])
+        check_email_user = db_users.find_by_email(user_from_form['email'])
 
         # if the email address is already taken, bail
         if check_email_user is not None:
@@ -116,7 +116,7 @@ def update_profile():
     user['phone'] = user_from_form['phone']
     user['pref_show_page_help'] = user_from_form['pref_show_page_help']
 
-    db.update('users', {'user_ulid': user_ulid}, user)
+    db.update('users', {'user_id': user_id}, user)
 
     flash('Your profile changes were successful.')
 

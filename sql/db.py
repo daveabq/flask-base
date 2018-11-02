@@ -75,8 +75,8 @@ def create_dict(obj, columns):
 #
 key_columns = {
     'things': None,
-    'users': 'user_ulid',
-    'widgets': 'widget_ulid'
+    'users': 'user_id',
+    'widgets': 'widget_id'
 }
 
 
@@ -90,7 +90,7 @@ def insert(table, cols_and_values):
 
     the following SQL will be created:
 
-        INSERT INTO widgets (widget_ulid, widget_name, description) VALUES (<new ulid>, 'fluffy the pink bunny',
+        INSERT INTO widgets (widget_id, widget_name, description) VALUES (<new ulid>, 'fluffy the pink bunny',
             super-mega-ultra bunny fluffiness')
 
     The new ulid is returned.
@@ -104,8 +104,12 @@ def insert(table, cols_and_values):
         element = 0
         s = 'INSERT INTO ' + table + ' ('
 
-        # add the key column name
-        s += key_columns[table] + ', '
+        key_col_name = key_columns[table]
+        s += key_col_name + ', '
+
+        col_values = []
+        new_id = ulid.new().str
+        col_values.append(new_id)
 
         for col_name in cols_and_values.keys():
 
@@ -116,17 +120,18 @@ def insert(table, cols_and_values):
 
             element += 1
 
+            # skip the primary key column
+            if col_name != key_col_name:
+                col_values.append(cols_and_values[col_name])
+
         s += ') VALUES ('
 
-        # add the key column value
-        new_ulid = ulid.new().str
-        s += "'" + new_ulid + "', "
-
         element = 0
+        s += '%s, '  # primary key column
 
         for col_name in cols_and_values.keys():
 
-            s += "'" + cols_and_values[col_name] + "'"
+            s += '%s'
 
             if element < col_count - 1:
                 s += ', '
@@ -136,16 +141,16 @@ def insert(table, cols_and_values):
         s += ')'
 
         log.debug('db.py::insert', 'sql [' + s + ']')
+        cur.execute(s, (*col_values,))
+        con.commit()
 
-        cur.execute(s)
-
-        return new_ulid
+        return new_id
 
     except Exception as e:
 
-        log.error('db.py::insert', str(e))
+        log.error('db.py::insert', 'Error attempting to execute [' + s + ']. Error [' + str(e) + '].')
         con.commit()
-        return None
+        raise e
 
 
 def update(table, where, cols_and_values):
@@ -154,12 +159,12 @@ def update(table, where, cols_and_values):
 
     Given the call:
 
-        update('widgets', {'widget_ulid': '123'}, {'widget_name': 'fluffy the pink SUPER bunny',
+        update('widgets', {'widget_id': '123'}, {'widget_name': 'fluffy the pink SUPER bunny',
             'description': 'super-mega-ultra bunny SUPER fluffiness'})
 
     the following SQL will be created:
 
-        INSERT INTO widgets (widget_ulid, widget_name, description) VALUES (<new ulid>, 'fluffy the pink SUPER bunny',
+        INSERT INTO widgets (widget_id, widget_name, description) VALUES (<new ulid>, 'fluffy the pink SUPER bunny',
             super-mega-ultra bunny SUPER fluffiness')
 
     The new ulid is returned.
@@ -276,32 +281,32 @@ def select(table, where, order_by, cols, like):
 
     Given the call:
 
-        select_all('widgets', {'user_ulid':'01CS2P9P684BAA6NCHDDN4D704'}, ['widget_name'],
-            ['widget_ulid', 'widget_name', 'description'])
+        select_all('widgets', {'user_id':'01CS2P9P684BAA6NCHDDN4D704'}, ['widget_name'],
+            ['widget_id', 'widget_name', 'description'])
 
         the following SQL will be created:
 
-        SELECT widget_ulid, widget_name, description FROM widgets WHERE user_ulid = %s ORDER BY widget_name
+        SELECT widget_id, widget_name, description FROM widgets WHERE user_id = %s ORDER BY widget_name
 
     For this call, we have more elements in both the 'where' and 'order_by' params:
 
-        select('widgets', {'user_ulid':'01CS2P9P684BAA6NCHDDN4D704, 'user_email':'a@a.a'},
-            ['widget_name', 'description'], ['widget_ulid', 'widget_name', 'description'])
+        select('widgets', {'user_id':'01CS2P9P684BAA6NCHDDN4D704, 'user_email':'a@a.a'},
+            ['widget_name', 'description'], ['widget_id', 'widget_name', 'description'])
 
         the following SQL will be created:
 
-        SELECT widget_ulid, widget_name, description FROM widgets WHERE user_ulid = %s AND user_email = %s
+        SELECT widget_id, widget_name, description FROM widgets WHERE user_id = %s AND user_email = %s
         ORDER BY widget_name, description
 
     In both of the examples above, the where clause placeholders (%s) will be filled in with the appropriate
     right-side values of the 'where' parameter. So, the final SQL executed in the first example will be:
 
-        SELECT widget_ulid, widget_name, description FROM widgets WHERE user_ulid = '01CS2P9P684BAA6NCHDDN4D704'
+        SELECT widget_id, widget_name, description FROM widgets WHERE user_id = '01CS2P9P684BAA6NCHDDN4D704'
         ORDER BY widget_name
 
         and the final SQL executed in the second example will be:
 
-        SELECT widget_ulid, widget_name, description FROM widgets WHERE user_ulid = '01CS2P9P684BAA6NCHDDN4D704'
+        SELECT widget_id, widget_name, description FROM widgets WHERE user_id = '01CS2P9P684BAA6NCHDDN4D704'
         AND user_email = 'a@a.a' ORDER BY widget_name, description
 
     :param table: select from this table

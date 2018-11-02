@@ -3,7 +3,7 @@
 -- <user>=# \connect quantumrocket_dev;
 -- CREATE USER qr;
 -- GRANT ALL PRIVILEGES ON DATABASE quantumrocket_dev TO qr;
--- GRANT USAGE ON SCHEMA public TO fluffy;
+-- GRANT USAGE ON SCHEMA public TO qr;
 -- GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO qr;
 -- ALTER USER "qr" WITH PASSWORD 'fluffy';
 
@@ -33,16 +33,16 @@ INSERT INTO things (key, value) VALUES ('page.my_profile.help', '<p>On this page
 --
 DROP TABLE IF EXISTS users;
 CREATE TABLE IF NOT EXISTS users (
-    user_ulid                   TEXT NOT NULL PRIMARY KEY,
-    email                       TEXT NOT NULL,
-    display_email               TEXT NOT NULL,
-    password                    TEXT NOT NULL,
-    full_name                   TEXT NOT NULL DEFAULT '',
-    phone                       TEXT NOT NULL DEFAULT '',
-    status                      TEXT NOT NULL DEFAULT 'new',  -- 'active', 'inactive', etc.
-    pref_show_page_help         TEXT NOT NULL DEFAULT 'yes',
-    created                     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    updated                     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+    user_id             TEXT NOT NULL PRIMARY KEY,
+    email               TEXT NOT NULL,
+    display_email       TEXT NOT NULL,
+    password            TEXT NOT NULL,
+    full_name           TEXT NOT NULL DEFAULT '',
+    phone               TEXT NOT NULL DEFAULT '',
+    status              TEXT NOT NULL DEFAULT 'new',  -- 'active', 'inactive', etc.
+    pref_show_page_help TEXT NOT NULL DEFAULT 'yes',
+    created             TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated             TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
 DROP INDEX IF EXISTS i_users_email;
@@ -57,11 +57,16 @@ CREATE INDEX IF NOT EXISTS i_users_status ON users (status);
 --
 DROP TABLE IF EXISTS widgets;
 CREATE TABLE IF NOT EXISTS widgets (
-    widget_ulid            TEXT NOT NULL PRIMARY KEY,
-    widget_name            TEXT NOT NULL,
-    user_ulid              TEXT NOT NULL,
-    user_email             TEXT NOT NULL,
-    description            TEXT NOT NULL DEFAULT '',
-    created                TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    updated                TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+    widget_id   TEXT NOT NULL PRIMARY KEY,
+    widget_name TEXT NOT NULL,
+    user_id     TEXT NOT NULL,
+    user_email  TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    created     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
+
+
+GRANT ALL PRIVILEGES ON DATABASE quantumrocket_dev TO qr;
+GRANT USAGE ON SCHEMA public TO qr;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO qr;

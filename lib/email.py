@@ -70,12 +70,12 @@ def send(to, subject, body_html):
         log.alert('email.py::send', 'Error attempting to send email: ' + str(e))
 
 
-def create_mailto(security_ulid, to, subject, body):
+def create_mailto(security_id, to, subject, body):
     """
     Create email friendly mailto links in both html and plain text.
     """
 
-    template = '<a href="mailto:{{to}}?subject={{subject}}&body=security%20id%3A%20{{security_ulid}}">{{body}}</a>'
+    template = '<a href="mailto:{{to}}?subject={{subject}}&body=security%20id%3A%20{{security_id}}">{{body}}</a>'
     return template
 
 

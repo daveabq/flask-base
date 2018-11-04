@@ -223,6 +223,48 @@ def update(table, where, cols_and_values):
         return None
 
 
+def delete(table, where):
+    """
+    Execute a DELETE statement, based on the supplied parameters.
+    """
+
+    try:
+
+        cur: object = con.cursor()
+
+        s = 'DELETE FROM ' + table
+
+        if where:
+
+            s += ' WHERE '
+            where_values = []
+
+            for where_col, where_value in where.items():
+
+                if where_values:
+                    s += " AND "
+
+                s += where_col + ' = %s'
+
+                where_values.append(where_value)
+
+        log.debug('db.py::delete', 'sql [' + s + ']')
+
+        if where:
+            cur.execute(s, (*where_values,))
+        else:
+            log.info('db.py::delete', 'About to delete all rows from table [' + table + '].')
+            cur.execute(s)
+
+        con.commit()
+
+    except Exception as e:
+
+        log.error('db.py::delete', 'Error attempting to execute [' + s + ']. Error [' + str(e) + '].')
+        con.commit()
+        raise e
+        
+
 def select_single(table, where, order_by, cols):
     """
     Call the select(...) function and return the first list element if the list is not empty, otherwise return None.

@@ -82,7 +82,8 @@ key_columns = {
 
 def insert(table, cols_and_values):
     """
-    Execute an INSERT statement, based on the supplied parameters.
+    Execute an INSERT statement, based on the supplied parameters. If the table's key column is passed and contains
+    a value, that value will be used for the key column, otherwise a new id is created.
 
     Given the call:
 
@@ -93,6 +94,16 @@ def insert(table, cols_and_values):
         INSERT INTO widgets (widget_id, widget_name, description) VALUES (<new ulid>, 'fluffy the pink bunny',
             super-mega-ultra bunny fluffiness')
 
+    Given the call:
+
+        insert('widgets', {'widget_id': '1234', 'widget_name': 'fluffy the pink bunny',
+            'description': 'super-mega-ultra bunny fluffiness'})
+
+    the following SQL will be created:
+
+        INSERT INTO widgets (widget_id, widget_name, description) VALUES ('1234', 'fluffy the pink bunny',
+            super-mega-ultra bunny fluffiness')
+
     The new ulid is returned.
     """
 
@@ -100,16 +111,25 @@ def insert(table, cols_and_values):
 
         cur: object = con.cursor()
 
-        col_count = len(cols_and_values)
         element = 0
         s = 'INSERT INTO ' + table + ' ('
 
         key_col_name = key_columns[table]
         s += key_col_name + ', '
 
+        # toss the key column from the dict if it is empty, otherwise use its value
+        if key_col_name in cols_and_values:
+            have_key_col_value = cols_and_values[key_col_name]
+            cols_and_values.pop(key_col_name, None)
+
+        col_count = len(cols_and_values)
         col_values = []
-        new_id = ulid.new().str
-        col_values.append(new_id)
+
+        if have_key_col_value is None:
+            new_id = ulid.new().str
+            col_values.append(new_id)
+        else:
+            col_values.append(have_key_col_value)
 
         for col_name in cols_and_values.keys():
 
@@ -270,12 +290,19 @@ def select_single(table, where, order_by, cols):
     Call the select(...) function and return the first list element if the list is not empty, otherwise return None.
     """
 
-    rows = select(table, where, order_by, cols, False)
+    try:
 
-    if rows:
-        return rows[0]
-    else:
-        return None
+        rows = select(table, where, order_by, cols, False)
+
+        if rows:
+            return rows[0]
+        else:
+            return None
+
+    except Exception as e:
+
+        log.error('db.py::select_single', 'Error [' + str(e) + '].')
+        raise e
 
 
 def select_single_like(table, where, order_by, cols):
@@ -283,12 +310,19 @@ def select_single_like(table, where, order_by, cols):
     Call the select(...) function and return the first list element if the list is not empty, otherwise return None.
     """
 
-    rows = select(table, where, order_by, cols, True)
+    try:
 
-    if rows:
-        return rows[0]
-    else:
-        return None
+        rows = select(table, where, order_by, cols, True)
+
+        if rows:
+            return rows[0]
+        else:
+            return None
+
+    except Exception as e:
+
+        log.error('db.py::select_single_like', 'Error [' + str(e) + '].')
+        raise e
 
 
 def select_all(table, where, order_by, cols):
@@ -296,12 +330,19 @@ def select_all(table, where, order_by, cols):
     Call the select(...) function and return all list elements if the list is not empty, otherwise return None.
     """
 
-    rows = select(table, where, order_by, cols, False)
+    try:
 
-    if rows:
-        return rows
-    else:
-        return None
+        rows = select(table, where, order_by, cols, False)
+
+        if rows:
+            return rows
+        else:
+            return None
+
+    except Exception as e:
+
+        log.error('db.py::select_all', 'Error [' + str(e) + '].')
+        raise e
 
 
 def select_all_like(table, where, order_by, cols):
@@ -309,12 +350,19 @@ def select_all_like(table, where, order_by, cols):
     Call the select(...) function and return all list elements if the list is not empty, otherwise return None.
     """
 
-    rows = select(table, where, order_by, cols, True)
+    try:
 
-    if rows:
-        return rows
-    else:
-        return None
+        rows = select(table, where, order_by, cols, True)
+
+        if rows:
+            return rows
+        else:
+            return None
+
+    except Exception as e:
+
+        log.error('db.py::select_all_like', 'Error [' + str(e) + '].')
+        raise e
 
 
 def select(table, where, order_by, cols, like):
@@ -324,7 +372,7 @@ def select(table, where, order_by, cols, like):
     Given the call:
 
         select_all('widgets', {'user_id':'01CS2P9P684BAA6NCHDDN4D704'}, ['widget_name'],
-            ['widget_id', 'widget_name', 'description'])
+            ['widget_id', 'widget_name', 'description'], False)
 
         the following SQL will be created:
 
@@ -333,7 +381,7 @@ def select(table, where, order_by, cols, like):
     For this call, we have more elements in both the 'where' and 'order_by' params:
 
         select('widgets', {'user_id':'01CS2P9P684BAA6NCHDDN4D704, 'user_email':'a@a.a'},
-            ['widget_name', 'description'], ['widget_id', 'widget_name', 'description'])
+            ['widget_name', 'description'], ['widget_id', 'widget_name', 'description'], False)
 
         the following SQL will be created:
 
@@ -356,7 +404,7 @@ def select(table, where, order_by, cols, like):
     :param order_by: list of ORDER BY criteria
     :param cols: select these columns
     :param like: use LIKE in the WHERE clause
-    :return:
+    :return: rows selected
     """
 
     try:

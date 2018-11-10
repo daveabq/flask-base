@@ -1,3 +1,5 @@
+# moved to GitLab: https://gitlab.com/daveabq/flask-base
+
 # flask-base
 This is an example website using Flask. It demonstrates the use of Flask's Blueprint concept for help building modular applications. See: <a href="http://flask.pocoo.org/docs/0.12/blueprints/">Blueprints</a>. The app is known to run on Python 3.7.0.
 
